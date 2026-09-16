@@ -4,7 +4,7 @@ macOS 小工具。按下 **⌘`**（Esc 正下方的 `` ` `` 键）后，会截�
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-teal) ![Apple Silicon & Intel](https://img.shields.io/badge/arch-Universal-lightgrey)
 
-源码在 [`WindowPaste`](WindowPaste/) 目录。
+源码在 [`WindowPaste`](WindowPaste/) 目录。官网：[terry1238832.github.io/WindowPaste](https://terry1238832.github.io/WindowPaste/)。
 
 ## 安装
 

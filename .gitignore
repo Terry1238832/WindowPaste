@@ -2,9 +2,11 @@
 AirMirror/
 main
 *.dmg
+!docs/*.dmg
 *.pkg
 WindowPaste/build/
 WindowPaste/dist/
+WindowPaste-website/
 WindowPaste/DerivedData/
 *.xcuserstate
 xcuserdata/

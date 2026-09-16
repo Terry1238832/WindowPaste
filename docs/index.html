@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0d0c10">
+  <meta name="description" content="窗贴，为 Mac 带来一键截取指定窗口并粘贴到当前光标的小工具。按下 ⌘`，截 LetsView 或其他软件窗口，复制到剪贴板，再粘贴进聊天框。">
+  <meta property="og:title" content="窗贴 · 截窗口，贴到光标处。">
+  <meta property="og:description" content="熟悉的 ⌘`。截取 LetsView 或其他窗口，粘贴到当前输入位置，可选自动回车发送。">
+  <meta property="og:type" content="website">
+  <title>窗贴 — 截窗口，贴到光标处。</title>
+  <link rel="icon" type="image/png" href="app-icon.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M5 16v4h14v-4"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7V5h7l2 3h9v12H3V7Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9S4 17 4 12V6l8-3Z"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h4l2-3h4l2 3h4v12H4V8Z"/><circle cx="12" cy="14" r="4"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-4 1-4-2-6-2m12 5v-4c0-1 .1-2-1-3 3-.4 6-1.5 6-6 0-1.3-.5-2.5-1.3-3.3.1-.8.1-2-.3-3.2 0 0-1.2-.4-3.8 1.3a13 13 0 0 0-7.2 0C4.8 2.1 3.6 2.5 3.6 2.5c-.4 1.2-.4 2.4-.3 3.2A4.9 4.9 0 0 0 2 9c0 4.5 3 5.6 6 6-1 .8-1 2-1 3v4"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M5.1 7a8 8 0 0 1 13.2-1L20 9M4 15l1.7 3A8 8 0 0 0 19 17"/></symbol>
+    <symbol id="i-window" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/></symbol>
+  </defs></svg>
+  <header class="site-header">
+    <nav class="nav shell" aria-label="主导航">
+      <a class="brand" href="#" aria-label="窗贴首页"><img src="app-icon.png" alt="" width="34" height="34"><span>窗贴</span></a>
+      <div class="nav-links"><a href="#windows">选择窗口</a><a href="#install">安装指南</a><a href="#faq">常见问题</a></div>
+      <a class="nav-download" href="#download">下载窗贴 <svg class="icon"><use href="#i-download"/></svg></a>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="hero shell" aria-labelledby="hero-title">
+      <a href="#release-notes" class="release-pill"><span>NEW</span> 窗贴 1.0.0 已发布 <svg class="icon"><use href="#i-arrow"/></svg></a>
+      <h1 id="hero-title">截窗口，<br><span>贴到光标处。</span></h1>
+      <p class="hero-description">按下 <kbd>⌘`</kbd>，截取 LetsView 或其他软件窗口。<br class="mobile-break">复制到剪贴板，再粘贴进当前输入位置。</p>
+      <a class="hero-feature" href="#windows"><svg class="icon"><use href="#i-window"/></svg><strong>多窗口可选</strong><span>只截你指定的那一个</span></a>
+      <div class="hero-actions"><a class="button button-primary" href="窗贴-1.0.0.dmg" download><svg class="icon"><use href="#i-download"/></svg>下载 Mac 版</a><a class="button button-github" href="https://github.com/Terry1238832/WindowPaste" target="_blank" rel="noopener noreferrer"><svg class="icon"><use href="#i-github"/></svg>访问 GitHub</a><a class="button button-secondary" href="#demo">看它如何工作 <span aria-hidden="true">↘</span></a></div>
+      <p class="compatibility">macOS 14+ <span>·</span> Apple Silicon & Intel <span>·</span> 2.4 MB</p>
+      <div class="demo-wrap" id="demo">
+        <div class="demo-heading"><span>按下 ⌘`，截图会出现在聊天框里。</span><span class="demo-kind">网页演示 · 不操作真实软件</span></div>
+        <div class="finder" data-phase="ready">
+          <div class="finder-toolbar"><div class="traffic-lights" aria-hidden="true"><i></i><i></i><i></i></div><div class="toolbar-arrows" aria-hidden="true">‹ &nbsp; ›</div><span class="finder-title">微信</span><div class="toolbar-view" aria-hidden="true">⊞ &nbsp; ≡</div></div>
+          <div class="finder-content">
+            <aside class="finder-sidebar" aria-label="演示中的会话"><p>会话</p><div class="sidebar-item" data-location="source">粮宇</div><div class="sidebar-extra">工作群</div><div class="sidebar-extra">文件传输助手</div><p class="sidebar-tag-title">目标窗口</p><div class="sidebar-item" data-location="destination"><svg class="icon"><use href="#i-camera"/></svg>LetsView</div></aside>
+            <div class="finder-workspace">
+              <div class="folder-breadcrumb"><span>微信</span><span>/</span><span class="breadcrumb-current">粮宇</span></div>
+              <div class="chat-demo">
+                <div class="chat-bubble incoming">把投屏画面发我一下</div>
+                <div class="chat-bubble outgoing sent-image" hidden>
+                  <div class="shot-thumb" aria-hidden="true"><span>LetsView</span></div>
+                </div>
+              </div>
+              <div class="composer">
+                <div class="composer-shot" hidden><div class="shot-thumb compact" aria-hidden="true"><span>LetsView</span></div></div>
+                <span class="composer-placeholder" id="composer-placeholder">输入消息…</span>
+              </div>
+              <div class="demo-status"><span class="status-symbol" aria-hidden="true">⌘</span><span id="demo-status-text" role="status" aria-live="polite">光标已在聊天框，准备截取 LetsView。</span></div>
+              <div class="finder-bottom"><span id="finder-count">目标 · LetsView</span><span>当前桌面</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="demo-controls"><div class="demo-steps" aria-label="演示进度"><span data-step="ready" class="active">01 放好光标</span><i></i><span data-step="pasted">02 截取粘贴</span><i></i><span data-step="sent">03 自动回车</span></div><div class="demo-buttons"><button class="demo-reset" type="button" aria-label="重置演示" title="重置演示"><svg class="icon"><use href="#i-refresh"/></svg></button><button id="demo-action" type="button"><span class="action-label">截取并粘贴</span><kbd class="action-key">⌘ `</kbd></button></div></div>
+        <p class="demo-disclaimer">网页演示，不截取真实窗口，也不发送消息。实际使用需要屏幕录制和辅助功能权限。</p>
+      </div>
+      <div class="trust-line"><span><svg class="icon"><use href="#i-check"/></svg>原生 macOS 应用</span><span><svg class="icon"><use href="#i-check"/></svg>不上传截图</span><span><svg class="icon"><use href="#i-check"/></svg>无需注册</span></div>
+    </section>
+    <section class="features shell section" id="features" aria-labelledby="features-title">
+      <div class="section-heading"><p class="eyebrow">SEE WHAT'S NEXT.</p><h2 id="features-title">截图，不只一张。<br><span>窗口，也能自己选。</span></h2><p>把投屏画面贴进聊天框，少一次来回切换。</p></div>
+      <article class="dimming-spotlight reveal" id="windows" aria-labelledby="windows-title">
+        <div class="dimming-copy"><span class="signature-badge"><svg class="icon"><use href="#i-window"/></svg>特色功能</span><h3 id="windows-title">一个软件两个窗口。<br><span>点选你要截的那个。</span></h3><p>LetsView、微信都可能同时开着多个窗口。窗贴会列出当前桌面上的窗口预览，记住你的选择。</p><div class="dimming-points"><span>当前桌面可见</span><span>记住所选窗口</span><span>可随时刷新</span></div><p class="dimming-scope">不在当前桌面、最小化的窗口不会出现在列表里。避免截到你看不见的那一个。</p><a class="dimming-link" href="#faq-windows">了解窗口规则 <svg class="icon"><use href="#i-arrow"/></svg></a></div>
+        <div class="dimming-compare" data-dimmed="false">
+          <div class="compare-toolbar"><span>选择要截的窗口</span></div>
+          <div class="window-pick">
+            <button class="window-card selected" type="button" data-pick="letsview">
+              <div class="shot-thumb"><span>LetsView</span></div>
+              <strong>LetsView</strong>
+              <small>1249×853 · 当前桌面</small>
+            </button>
+            <button class="window-card" type="button" data-pick="wechat">
+              <div class="shot-thumb muted"><span>微信</span></div>
+              <strong>微信</strong>
+              <small>未选中</small>
+            </button>
+          </div>
+          <p id="dim-preview-status" class="compare-status" role="status" aria-live="polite">已选择 LetsView。按下 ⌘` 会截这一扇窗口。</p>
+          <p class="compare-footnote">效果示意 · 可点选对比</p>
+        </div>
+      </article>
+      <div class="feature-grid">
+        <article class="feature-card shortcut-card reveal"><div class="card-copy"><span class="card-index">01 / 顺手</span><h3>一只手，<br>就能截并贴。</h3><p>光标放在聊天框，按下 ⌘`。<br>截图进剪贴板，再粘贴到当前输入位置。</p></div><div class="key-scene" aria-hidden="true"><div class="keycap command-key">⌘<small>command</small></div><div class="keycap letter-key">`</div><svg class="key-arrow icon"><use href="#i-arrow"/></svg><div class="keycap letter-key purple-key">V</div></div></article>
+        <article class="feature-card native-card reveal"><div class="card-copy"><span class="card-index">02 / 发送</span><h3>可选自动回车，<br>直接发出去。</h3><p>适合微信等聊天框。<br>不想发送时，关掉这个选项即可。</p></div><div class="native-flow" aria-hidden="true"><div class="flow-app"><img src="app-icon.png" alt="" width="62" height="62"><span>窗贴</span></div><span class="flow-line"></span><div class="flow-end"><span class="return-key">⏎</span><span>回车发送</span></div></div></article>
+        <article class="feature-card privacy-card reveal"><div class="privacy-icon"><svg class="icon"><use href="#i-shield"/></svg></div><div class="card-copy"><span class="card-index">03 / 克制</span><h3>截图留在你的 Mac。</h3><p>不上传画面，不需要账号。截图只经过系统剪贴板，贴到你正在输入的位置。</p></div><div class="local-label"><span aria-hidden="true">⌘</span><div>在本机完成<small>无需账号，也无需联网</small></div></div></article>
+      </div>
+    </section>
+    <section class="install-section section" id="install" aria-labelledby="install-title"><div class="shell"><div class="section-heading"><p class="eyebrow">READY WHEN YOU ARE.</p><h2 id="install-title">设置一次，<span>从此顺手。</span></h2><p>三个步骤，让窗贴准备就绪。</p></div><ol class="install-steps"><li class="reveal"><span class="step-number">01</span><h3>拖入应用程序</h3><p>打开磁盘映像，将「窗贴」拖入 Mac 的“应用程序”文件夹。</p></li><li class="reveal"><span class="step-number">02</span><h3>批准首次打开</h3><p>当前版本未经 Apple 公证。若系统阻止打开，按住 Control 点击图标，选择“打开”。</p></li><li class="reveal"><span class="step-number">03</span><h3>打开两项权限</h3><p>授予屏幕录制（截窗口）和辅助功能（自动粘贴、可选回车）。然后把光标放到聊天框，按下 ⌘`。</p></li></ol><div class="permission-note"><svg class="icon"><use href="#i-shield"/></svg><p>屏幕录制用于截取目标窗口；辅助功能用于模拟粘贴和回车。授权由你在 macOS 系统设置中完成。</p></div></div></section>
+    <section class="faq-section shell section" id="faq" aria-labelledby="faq-title"><div class="faq-intro"><p class="eyebrow">GOOD TO KNOW.</p><h2 id="faq-title">下载之前，<br><span>你可能想知道。</span></h2><p>把能力与边界，都说清楚。</p></div><div class="faq-list"><details><summary>支持哪些 Mac？<span aria-hidden="true">+</span></summary><p>提供 Apple Silicon 与 Intel 通用安装包，需要 macOS 14 或更新版本。建议先用 LetsView 或微信确认你的使用环境。</p></details><details><summary>⌘` 会截整个屏幕吗？<span aria-hidden="true">+</span></summary><p>不会。默认截取 LetsView 窗口；你也可以在设置里改成其他正在运行的软件，并点选具体窗口。</p></details><details id="faq-windows"><summary>为什么有的窗口不出现？<span aria-hidden="true">+</span></summary><p>列表只显示当前桌面上能看见的窗口。其他桌面、最小化的窗口不会列出，避免截到你看不到的画面。</p></details><details><summary>已经授权，却还提示没有权限？<span aria-hidden="true">+</span></summary><p>旧签名或另一份同名应用可能导致授权不匹配。请退出旧版本，在系统设置的屏幕录制、辅助功能列表中移除旧记录，再添加正在使用的「窗贴」。</p></details><details><summary>自动回车会误发消息吗？<span aria-hidden="true">+</span></summary><p>默认关闭。打开后，粘贴截图再稍等片刻会按一次回车，适合微信等聊天框。在普通文档里如果不希望发送或换行，请关掉这个选项。</p></details><details><summary>快捷键和系统「切换窗口」冲突吗？<span aria-hidden="true">+</span></summary><p>会。窗贴运行时会占用系统自带的「切换当前应用窗口」快捷键 ⌘`。退出窗贴后即可恢复。</p></details></div></section>
+    <section class="download-section shell" id="download" aria-labelledby="download-title"><div class="download-glow" aria-hidden="true"></div><img class="download-icon" src="app-icon.png" alt="窗贴应用图标" width="80" height="80"><p class="eyebrow">CAPTURE. PASTE. SEND.</p><h2 id="download-title">下一次发投屏画面，<br>少一次来回切换。</h2><a class="button button-primary" href="窗贴-1.0.0.dmg" download><svg class="icon"><use href="#i-download"/></svg>下载窗贴 <span>1.0.0</span></a><p class="download-meta">macOS 14+ · Apple Silicon / Intel · 2.4 MB</p><p class="download-caveat">未经 Apple 公证，首次打开需手动批准。<a href="#install">查看安装指南</a></p><div class="release-links"><a href="#release-notes">版本更新</a><a href="SHA256SUMS.txt">SHA-256 校验值</a><a href="https://github.com/Terry1238832/WindowPaste/releases/tag/v1.0.0">GitHub Release</a></div></section>
+    <section class="release-section shell" id="release-notes"><div><span class="outline-badge">1.0.0 · BUILD 100</span><h3>正式版。</h3><p>快捷键 ⌘` 截取指定窗口并粘贴；支持多窗口选择、只列出当前桌面、程序坞打开设置，以及可选自动回车。</p></div><time datetime="2026-09-16">2026.09.16</time></section>
+  </main>
+  <footer class="footer shell"><div><a class="brand" href="#"><img src="app-icon.png" alt="" width="28" height="28"><span>窗贴</span></a><p>一个小工具，让投屏画面贴进聊天框。</p></div><div class="footer-links"><a href="https://github.com/Terry1238832/WindowPaste" target="_blank" rel="noopener noreferrer"><svg class="icon"><use href="#i-github"/></svg>GitHub</a><a href="https://github.com/Terry1238832/WindowPaste/issues" target="_blank" rel="noopener noreferrer">反馈问题 ↗</a></div><p class="footer-note">© 2026 窗贴 · 独立开发的 macOS 工具，与 Apple 或 LetsView 无关联。</p></footer>
+</body>
+</html>
