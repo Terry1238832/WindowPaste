@@ -1,0 +1,10 @@
+.DS_Store
+AirMirror/
+main
+*.dmg
+*.pkg
+WindowPaste/build/
+WindowPaste/dist/
+WindowPaste/DerivedData/
+*.xcuserstate
+xcuserdata/

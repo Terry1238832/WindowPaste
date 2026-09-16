@@ -1,0 +1,16 @@
+#!/bin/bash
+# 安装后以当前登录用户打开窗贴，并清掉隔离属性，方便本机直接用。
+set -euo pipefail
+
+APP="/Applications/窗贴.app"
+
+if [[ -d "$APP" ]]; then
+  xattr -dr com.apple.quarantine "$APP" 2>/dev/null || true
+fi
+
+CONSOLE_USER="$(stat -f '%Su' /dev/console 2>/dev/null || true)"
+if [[ -n "${CONSOLE_USER}" && "${CONSOLE_USER}" != "root" && "${CONSOLE_USER}" != "loginwindow" ]]; then
+  sudo -u "${CONSOLE_USER}" open "$APP" || true
+fi
+
+exit 0
