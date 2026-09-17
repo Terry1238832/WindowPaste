@@ -57,23 +57,42 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
             window.setContentSize(NSSize(width: 480, height: 740))
             window.minSize = NSSize(width: 440, height: 560)
             window.isReleasedWhenClosed = false
+            window.hidesOnDeactivate = false
             window.delegate = self
-            window.collectionBehavior = [.moveToActiveSpace]
+            window.collectionBehavior = [.managed, .moveToActiveSpace, .fullScreenNone]
             window.isRestorable = true
+            window.animationBehavior = .documentWindow
+            window.tabbingMode = .disallowed
             window.center()
             self.window = window
         }
         AppState.shared.refreshPermissions()
         Task { await AppState.shared.refreshWindows() }
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate(ignoringOtherApps: true)
         if window?.isMiniaturized == true {
             window?.deminiaturize(nil)
+        } else {
+            window?.makeKeyAndOrderFront(nil)
         }
-        NSApp.activate(ignoringOtherApps: true)
-        window?.makeKeyAndOrderFront(nil)
     }
 
     func windowShouldClose(_ sender: NSWindow) -> Bool {
-        sender.orderOut(nil)
-        return false
+        NSApp.setActivationPolicy(.regular)
+        return true
+    }
+
+    func windowWillMiniaturize(_ notification: Notification) {
+        AppState.shared.cancelHotKeyRecording()
+        NSApp.setActivationPolicy(.regular)
+    }
+
+    func windowWillClose(_ notification: Notification) {
+        AppState.shared.cancelHotKeyRecording()
+        NSApp.setActivationPolicy(.regular)
+    }
+
+    func windowDidResignKey(_ notification: Notification) {
+        AppState.shared.cancelHotKeyRecording()
     }
 }

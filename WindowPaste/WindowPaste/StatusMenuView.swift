@@ -5,7 +5,7 @@ struct StatusMenuView: View {
     @EnvironmentObject private var appState: AppState
 
     var body: some View {
-        Button("截取并粘贴") {
+        Button("截取并粘贴（\(appState.hotKey.displayName)）") {
             appState.captureAndPaste()
         }
 

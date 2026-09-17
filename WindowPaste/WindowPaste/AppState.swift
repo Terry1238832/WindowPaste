@@ -1,4 +1,5 @@
 import AppKit
+import Carbon
 import Combine
 import Foundation
 import os
@@ -13,6 +14,8 @@ final class AppState: ObservableObject {
     private static let windowIDKey = "targetWindowID"
     private static let windowTitleKey = "targetWindowTitle"
     private static let autoReturnKey = "autoPressReturn"
+    private static let hotKeyCodeKey = "hotKeyCode"
+    private static let hotKeyModifiersKey = "hotKeyModifiers"
 
     private let logger = Logger(subsystem: "com.liangyu.windowpaste", category: "app")
 
@@ -27,11 +30,15 @@ final class AppState: ObservableObject {
     @Published var hasAccessibility = false
     @Published var launchAtLogin = false
     @Published var autoPressReturn = false
+    @Published var hotKey: HotKey
+    @Published var isRecordingHotKey = false
+    @Published var hotKeyWarning: String?
     @Published var lastMessage: String?
 
     private var started = false
     private var lastTriggerAt: Date = .distantPast
     private var previewTask: Task<Void, Never>?
+    private var recordingMonitor: Any?
 
     var windowMenuLabel: String {
         if selectedWindowID == 0 {
@@ -59,14 +66,27 @@ final class AppState: ObservableObject {
         selectedWindowID = UInt32(defaults.integer(forKey: Self.windowIDKey))
         selectedWindowTitle = defaults.string(forKey: Self.windowTitleKey) ?? ""
         autoPressReturn = defaults.bool(forKey: Self.autoReturnKey)
+        if defaults.object(forKey: Self.hotKeyCodeKey) != nil {
+            hotKey = HotKey(
+                keyCode: UInt32(defaults.integer(forKey: Self.hotKeyCodeKey)),
+                carbonModifiers: UInt32(defaults.integer(forKey: Self.hotKeyModifiersKey))
+            )
+        } else {
+            hotKey = .default
+        }
     }
 
     func start() {
         guard !started else { return }
         started = true
         ProcessInfo.processInfo.disableAutomaticTermination("listening for capture hotkey")
-        HotKeyManager.shared.register { [weak self] in
+        HotKeyManager.shared.setHandler { [weak self] in
             self?.captureAndPaste()
+        }
+        if !registerCurrentHotKey(), hotKey != .default {
+            hotKey = .default
+            persistHotKey()
+            _ = registerCurrentHotKey()
         }
         refreshPermissions()
         refreshLaunchAtLogin()
@@ -185,6 +205,95 @@ final class AppState: ObservableObject {
     func setAutoPressReturn(_ enabled: Bool) {
         autoPressReturn = enabled
         UserDefaults.standard.set(enabled, forKey: Self.autoReturnKey)
+    }
+
+    func toggleHotKeyRecording() {
+        if isRecordingHotKey {
+            cancelHotKeyRecording()
+        } else {
+            beginHotKeyRecording()
+        }
+    }
+
+    func beginHotKeyRecording() {
+        hotKeyWarning = nil
+        isRecordingHotKey = true
+        HotKeyManager.shared.suspend()
+        stopRecordingMonitor()
+        recordingMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            self?.handleHotKeyRecordingEvent(event)
+            return nil
+        }
+    }
+
+    func cancelHotKeyRecording() {
+        guard isRecordingHotKey else { return }
+        finishRecording(resume: true)
+    }
+
+    func restoreDefaultHotKey() {
+        applyHotKey(.default)
+    }
+
+    func applyHotKey(_ newHotKey: HotKey) {
+        finishRecording(resume: false)
+        if newHotKey == hotKey {
+            HotKeyManager.shared.resume()
+            hotKeyWarning = nil
+            return
+        }
+        switch HotKeyManager.shared.apply(newHotKey) {
+        case .registered:
+            hotKey = newHotKey
+            persistHotKey()
+            hotKeyWarning = nil
+        case .invalid(let message), .conflict(let message), .failed(let message):
+            hotKeyWarning = message
+            HotKeyManager.shared.resume()
+        }
+    }
+
+    private func handleHotKeyRecordingEvent(_ event: NSEvent) {
+        let flags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        let onlyFunction = flags.isEmpty || flags == .function || flags == .numericPad
+        if event.keyCode == UInt16(kVK_Escape), onlyFunction || flags.isEmpty {
+            cancelHotKeyRecording()
+            return
+        }
+        guard let captured = HotKey(event: event) else { return }
+        applyHotKey(captured)
+    }
+
+    private func finishRecording(resume: Bool) {
+        isRecordingHotKey = false
+        stopRecordingMonitor()
+        if resume {
+            HotKeyManager.shared.resume()
+        }
+    }
+
+    private func stopRecordingMonitor() {
+        if let recordingMonitor {
+            NSEvent.removeMonitor(recordingMonitor)
+            self.recordingMonitor = nil
+        }
+    }
+
+    private func persistHotKey() {
+        UserDefaults.standard.set(Int(hotKey.keyCode), forKey: Self.hotKeyCodeKey)
+        UserDefaults.standard.set(Int(hotKey.carbonModifiers), forKey: Self.hotKeyModifiersKey)
+    }
+
+    @discardableResult
+    private func registerCurrentHotKey() -> Bool {
+        switch HotKeyManager.shared.apply(hotKey) {
+        case .registered:
+            return true
+        case .invalid(let message), .conflict(let message), .failed(let message):
+            hotKeyWarning = message
+            present(message, success: false)
+            return false
+        }
     }
 
     func runningApps() -> [TargetApp] {

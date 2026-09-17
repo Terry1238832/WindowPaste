@@ -9,6 +9,7 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 18) {
                 header
                 howTo
+                shortcut
                 targetPicker
                 permissions
                 extras
@@ -36,7 +37,7 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("窗贴")
                     .font(.title2.weight(.semibold))
-                Text("按下 ⌘`，截取目标窗口并粘贴到当前光标处")
+                Text("按下 \(appState.hotKey.displayName)，截取目标窗口并粘贴到当前光标处")
                     .foregroundStyle(.secondary)
                     .font(.callout)
             }
@@ -49,11 +50,61 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 8) {
                 labeled("1", "打开 LetsView（或你选择的软件），保持要截的窗口不要最小化")
                 labeled("2", "如果有多个窗口，在下面点选要截取的那个")
-                labeled("3", "把光标放到聊天框、文档等要插入图片的位置，按下 ⌘`")
-                Text("软件运行时会占用系统自带的「切换当前应用窗口」快捷键。")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 4)
+                labeled("3", "把光标放到聊天框、文档等要插入图片的位置，按下 \(appState.hotKey.displayName)")
+                if appState.hotKey.isDefault {
+                    Text("默认快捷键会占用系统自带的「切换当前应用窗口」。可在下面改成别的组合。")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 4)
+                }
+            }
+            .padding(.vertical, 4)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var shortcut: some View {
+        GroupBox("快捷键") {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .center, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("截取并粘贴")
+                            .font(.headline)
+                        Text(appState.isRecordingHotKey
+                             ? "按下新的组合键，Esc 取消"
+                             : "点右边按钮后按下新组合。默认是 Command+·")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Button {
+                        appState.toggleHotKeyRecording()
+                    } label: {
+                        Text(appState.isRecordingHotKey ? "按下组合键…" : appState.hotKey.displayName)
+                            .font(.system(.body, design: .rounded, weight: .semibold))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(appState.isRecordingHotKey ? .teal : nil)
+                    .accessibilityLabel(appState.isRecordingHotKey ? "正在录制快捷键" : "当前快捷键 \(appState.hotKey.displayName)")
+                    .accessibilityHint("点按后按下新的组合键。和系统或其他软件冲突时不会保存。")
+                }
+
+                if !appState.hotKey.isDefault {
+                    Button("恢复默认 ⌘·") {
+                        appState.restoreDefaultHotKey()
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.teal)
+                    .font(.caption.weight(.medium))
+                }
+
+                if let warning = appState.hotKeyWarning {
+                    Text(warning)
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
             }
             .padding(.vertical, 4)
             .frame(maxWidth: .infinity, alignment: .leading)

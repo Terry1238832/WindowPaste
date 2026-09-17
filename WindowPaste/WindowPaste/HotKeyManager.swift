@@ -19,16 +19,61 @@ final class HotKeyManager {
 
     private var hotKeyRef: EventHotKeyRef?
     private var eventHandlerRef: EventHandlerRef?
+    private var activeHotKey: HotKey?
 
-    /// ⌘` —— Esc 下方的反引号键，中文里常被写成 Command+·
-    func register(_ handler: @escaping () -> Void) {
-        unregister()
+    func setHandler(_ handler: @escaping () -> Void) {
         registeredHotKeyHandler = {
             DispatchQueue.main.async {
                 handler()
             }
         }
+        ensureEventHandler()
+    }
 
+    @discardableResult
+    func apply(_ hotKey: HotKey) -> HotKeyRegisterResult {
+        if let problem = hotKey.problem() {
+            return problem
+        }
+
+        removeHotKeyRef()
+        let status = registerRef(hotKey)
+        if status == noErr {
+            activeHotKey = hotKey
+            return .registered
+        }
+
+        if let activeHotKey {
+            _ = registerRef(activeHotKey)
+        }
+
+        if status == eventHotKeyExistsErr {
+            return .conflict("这个快捷键已被其他软件占用")
+        }
+        return .failed("快捷键注册失败（\(status)）")
+    }
+
+    func suspend() {
+        removeHotKeyRef()
+    }
+
+    func resume() {
+        guard let activeHotKey else { return }
+        _ = registerRef(activeHotKey)
+    }
+
+    func unregister() {
+        removeHotKeyRef()
+        if let eventHandlerRef {
+            RemoveEventHandler(eventHandlerRef)
+            self.eventHandlerRef = nil
+        }
+        registeredHotKeyHandler = nil
+        activeHotKey = nil
+    }
+
+    private func ensureEventHandler() {
+        guard eventHandlerRef == nil else { return }
         var eventType = EventTypeSpec(
             eventClass: OSType(kEventClassKeyboard),
             eventKind: UInt32(kEventHotKeyPressed)
@@ -41,34 +86,34 @@ final class HotKeyManager {
             nil,
             &eventHandlerRef
         )
+    }
 
+    private func registerRef(_ hotKey: HotKey) -> OSStatus {
+        removeHotKeyRef()
         var hotKeyID = EventHotKeyID()
         hotKeyID.signature = fourCharCode("WPST")
         hotKeyID.id = 1
 
+        var ref: EventHotKeyRef?
         let status = RegisterEventHotKey(
-            UInt32(kVK_ANSI_Grave),
-            UInt32(cmdKey),
+            hotKey.keyCode,
+            hotKey.carbonModifiers,
             hotKeyID,
             GetApplicationEventTarget(),
             0,
-            &hotKeyRef
+            &ref
         )
-        if status != noErr {
-            NSLog("窗贴：注册快捷键 ⌘` 失败，错误码 \(status)")
+        if status == noErr {
+            hotKeyRef = ref
         }
+        return status
     }
 
-    func unregister() {
+    private func removeHotKeyRef() {
         if let hotKeyRef {
             UnregisterEventHotKey(hotKeyRef)
             self.hotKeyRef = nil
         }
-        if let eventHandlerRef {
-            RemoveEventHandler(eventHandlerRef)
-            self.eventHandlerRef = nil
-        }
-        registeredHotKeyHandler = nil
     }
 }
 

@@ -30,7 +30,9 @@ FINAL_DMG="$DIST/$DMG_NAME"
 MOUNT_POINT="/Volumes/${VOL_NAME}"
 
 hdiutil detach "$MOUNT_POINT" -quiet 2>/dev/null || true
+hdiutil detach "/Volumes/${VOL_NAME} ${VERSION}" -quiet 2>/dev/null || true
 hdiutil detach "/Volumes/${VOL_NAME} 1.0.0" -quiet 2>/dev/null || true
+hdiutil detach "/Volumes/${VOL_NAME} 1.0.1" -quiet 2>/dev/null || true
 sleep 1
 
 rm -rf "$WORK"
