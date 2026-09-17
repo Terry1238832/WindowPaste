@@ -71,6 +71,8 @@ tell application "Finder"
     set theViewOptions to the icon view options of container window
     set arrangement of theViewOptions to not arranged
     set icon size of theViewOptions to 128
+    set text size of theViewOptions to 12
+    set background color of theViewOptions to {1769, 5112, 4391}
     set background picture of theViewOptions to file ".background:background.png"
     delay 0.4
     set position of item "${APP_NAME}.app" of container window to {180, 185}

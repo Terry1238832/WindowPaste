@@ -51,13 +51,18 @@ glow?.draw(
 )
 
 func pad(at x: CGFloat) {
-    let rect = NSRect(x: x - 78, y: 148, width: 156, height: 168)
+    let rect = NSRect(x: x - 78, y: 132, width: 156, height: 184)
     let path = NSBezierPath(roundedRect: rect, xRadius: 28, yRadius: 28)
     NSColor(calibratedRed: 0.08, green: 0.22, blue: 0.20, alpha: 0.55).setFill()
     path.fill()
     NSColor(calibratedRed: 0.37, green: 0.92, blue: 0.83, alpha: 0.18).setStroke()
     path.lineWidth = 1.5
     path.stroke()
+
+    let plate = NSRect(x: x - 58, y: 140, width: 116, height: 28)
+    let platePath = NSBezierPath(roundedRect: plate, xRadius: 8, yRadius: 8)
+    NSColor(calibratedRed: 0.91, green: 0.99, blue: 0.96, alpha: 0.96).setFill()
+    platePath.fill()
 }
 
 pad(at: 180)
